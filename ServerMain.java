@@ -3,54 +3,54 @@ package assignment7;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
+import java.util.Observable;
 
-public class ServerMain {
-	
-	private ArrayList<PrintWriter> clientOutputStreams; 
-	
-	public static void main(String[] args){
-		try{
+public class ServerMain extends Observable {
+	public static void main(String[] args) {
+		try {
 			new ServerMain().setUpNetworking();
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void setUpNetworking() throws Exception {
-		clientOutputStreams = new ArrayList<PrintWriter>();
 		@SuppressWarnings("resource")
-		ServerSocket serverSock = new ServerSocket(4242); 
-		while (true) { 
+		ServerSocket serverSock = new ServerSocket(4242);
+		while (true) {
 			Socket clientSocket = serverSock.accept();
-			PrintWriter writer = new PrintWriter(clientSocket.getOutputStream()); 
-			clientOutputStreams.add(writer); 
-			Thread t = new Thread(new ClientHandler(clientSocket)); 
-			t.start(); 
+			ClientObserver writer = new ClientObserver(clientSocket.getOutputStream());
+			Thread t = new Thread(new ClientHandler(clientSocket));
+			t.start();
+			this.addObserver(writer);
 			System.out.println("got a connection");
 		}
 	}
-	
-	class ClientHandler implements Runnable { 
+	class ClientHandler implements Runnable {
 		private BufferedReader reader;
-		public ClientHandler(Socket clientSocket) throws IOException {
-			Socket sock = clientSocket; 
-			reader = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-		} 
-		public void run() { 
-			String message;
-			while ((message = reader.readLine()) != null) {
-				notifyClients(message);
+
+		public ClientHandler(Socket clientSocket) {
+			Socket sock = clientSocket;
+			try {
+				reader = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
-	}
-	private void notifyClients(String message) {
-		for (PrintWriter writer : clientOutputStreams) {
-			writer.println(message); 
-			writer.flush();
+
+		public void run() {
+			String message;
+			try {
+				while ((message = reader.readLine()) != null) {
+					System.out.println("server read "+message);
+					setChanged();
+					notifyObservers(message);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

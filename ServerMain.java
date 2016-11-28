@@ -1,4 +1,4 @@
-package Project7;
+package assignment7;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,13 +8,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 
-public class ChatServer {
+public class ServerMain {
 	
 	private ArrayList<PrintWriter> clientOutputStreams; 
 	
 	public static void main(String[] args){
 		try{
-			new ChatServer().setUpNetworking();
+			new ServerMain().setUpNetworking();
 		}catch(Exception e){
 			e.printStackTrace();
 		}

@@ -1,4 +1,4 @@
-package Project7;
+package assignment7;
 
 import java.io.*;
 import java.net.Socket;
@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 //import javax.swing.*;
 
-public class ChatClient { 
+public class ClientMain { 
 	private BufferedReader reader; 
 	private PrintWriter writer; 
 	private static ArrayList<String> names;		//keep a list on existing participants?

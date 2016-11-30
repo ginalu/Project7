@@ -33,6 +33,8 @@ public class Server extends Observable {
 		private BufferedReader reader;
 		private ClientObserver writer;
 		private String clientName;
+		private int Age = -1;
+		private Long Number;
 		private Socket clientSocket;
 		private List<ClientObserver> observers = new ArrayList<ClientObserver>();
 		
@@ -65,7 +67,7 @@ public class Server extends Observable {
 				}
 				clientName = "@" + plainName;
 				notifyMyObservers(observers, "Welcome to the group chat, " + plainName + "!");
-				notifyMyObservers(observers, "Type the @ symbol before someone's name to chat with them, or type /quit to leave.");
+				notifyMyObservers(observers, "Type the @ symbol before someone's name to private message them, or type /quit to leave.");
 				setChanged();
 				notifyObservers("---A new member, " + plainName + ", has joined the group!---");
 				
@@ -91,11 +93,65 @@ public class Server extends Observable {
 							}
 						}
 					}
+					else if(message.contains("sEt#")){
+						List<ClientObserver> self = new ArrayList<ClientObserver>();
+						self.add(this.writer);
+						notifyMyObservers(self, "Enter your age: ");
+						message = reader.readLine();
+				        while((message.matches("-?\\d+(\\.\\d+)?") == false) 
+				                || Integer.parseInt(message) <= 0){
+				        	notifyMyObservers(self, message + " is not valid age. Try again: " + "\n");
+				            message = reader.readLine();
+				        }
+				        notifyMyObservers(self, "Storing " + message + "\n");
+			            
+				        Age = Integer.parseInt(message);
+						notifyMyObservers(self, "Enter your phone number: ");
+						message = reader.readLine();
+				        while((message.matches("-?\\d+(\\.\\d+)?") == false) 
+				                || message.length() != 10){
+				        	notifyMyObservers(self, message + " is not valid number. Try again: " + "\n");
+				            message = reader.readLine();
+				        }
+				        Number = Long.parseLong(message);
+				        notifyMyObservers(self, "Storing " + message + "\n");
+				        notifyMyObservers(self, "Finished Profile!" + "\n");
+					}
+					else if(message.contains("viEw#")){
+						List<ClientObserver> self = new ArrayList<ClientObserver>();
+						self.add(this.writer);
+						notifyMyObservers(self, "Who would you like to view? Type @ symbol before their name. ");
+						message = reader.readLine();
+						boolean found = false;
+						while(found == false){
+							for (ClientHandler client : clients) {
+								if (client.clientName.equals(message)) {
+									found = true;
+									if(client.Age == -1){
+										notifyMyObservers(observers, "This user has not set up their profile"+ "\n");
+									}
+									else{
+										notifyMyObservers(observers, client.clientName + "\n");
+										notifyMyObservers(observers, "Age: " + client.Age + "\n");
+										notifyMyObservers(observers, "Phone Number: " + client.Number + "\n");
+									}
+								}
+	
+							}
+							if(found == false){
+								notifyMyObservers(self, "Invalid User. Try Again: ");
+								message = reader.readLine();
+							}
+						}
+						
+					}
 					// Public chat
 					else {
 						System.out.println("server read "+message);
 						setChanged();
-						notifyObservers(message);
+						String[] name = new String[2];
+						name = this.clientName.split("@");
+						notifyObservers(name[1] + ": " + message);
 					}
 				}
 			} catch (IOException e) {

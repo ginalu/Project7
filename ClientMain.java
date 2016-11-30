@@ -18,13 +18,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-//import javax.swing.*;
 
-public class Client extends Application {
+public class ClientMain extends Application {
 	private BufferedReader reader;
 	private PrintWriter writer;
 	private TextArea ta;
-	//private String clientID;
 
 	public static void main(String[] args) {
 		try {
@@ -60,7 +58,11 @@ public class Client extends Application {
 
 	    Button view = new Button("View Profiles");
 	    view.setPrefSize(100, 15);
-	    hbox.getChildren().addAll(set, view);
+	    
+	    Button quit = new Button("Quit");
+	    set.setPrefSize(100, 15);
+	    
+	    hbox.getChildren().addAll(set, view, quit);
 	    mainPane.setTop(hbox);
 	    
 	    
@@ -76,6 +78,14 @@ public class Client extends Application {
 	    	@Override
             public void handle(ActionEvent event) {
 	    		writer.println("viEw#");
+				writer.flush();
+	    	}
+	    });
+	    
+	    quit.setOnAction(new EventHandler<ActionEvent>() {
+	    	@Override
+            public void handle(ActionEvent event) {
+	    		writer.println("quIt#");
 				writer.flush();
 	    	}
 	    });
@@ -116,8 +126,10 @@ public class Client extends Application {
 			String message;
 			try {
 				while ((message = reader.readLine()) != null) {
-					
-						ta.appendText(message + "\n");
+					if (message.equals("/quit")) {
+						System.exit(0);
+					}
+					ta.appendText(message + "\n");
 				}
 			} catch (IOException ex) {
 				ex.printStackTrace();

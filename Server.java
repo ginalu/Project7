@@ -33,10 +33,12 @@ public class Server extends Observable {
 		private BufferedReader reader;
 		private ClientObserver writer;
 		private String clientName;
+		private String plainName;
 		private int Age = -1;
 		private Long Number;
 		private Socket clientSocket;
 		private List<ClientObserver> observers = new ArrayList<ClientObserver>();
+		List<ClientObserver> self = new ArrayList<ClientObserver>();
 		
 		public ClientHandler(Socket clientSocket) throws IOException {
 			this.clientSocket = clientSocket;
@@ -44,7 +46,8 @@ public class Server extends Observable {
 			try {
 				reader = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
 				writer = new ClientObserver(this.clientSocket.getOutputStream());
-				observers.add(writer);
+				observers.add(this.writer);
+				self.add(this.writer);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -53,16 +56,15 @@ public class Server extends Observable {
 		public void run() {
 			try {
 				// Get name from client, welcome to group
-				String plainName;
 				while (true) {
-					notifyMyObservers(observers, "Enter your name: ");
+					notifyMyObservers(self, "Enter your name: ");
 					plainName = reader.readLine().trim();
 					if (plainName.indexOf('@') == -1) {
 						System.out.println("breaking from @");
 						break;
 					} else {
 						setChanged();
-						notifyMyObservers(observers, "The name should not contain '@' character.");
+						notifyMyObservers(self, "The name should not contain '@' character.");
 					}
 				}
 				clientName = "@" + plainName;
@@ -93,9 +95,8 @@ public class Server extends Observable {
 							}
 						}
 					}
-					else if(message.contains("sEt#")){
-						List<ClientObserver> self = new ArrayList<ClientObserver>();
-						self.add(this.writer);
+					// Set profile
+					else if(message.contains("sEt#")){;
 						notifyMyObservers(self, "Enter your age: ");
 						message = reader.readLine();
 				        while((message.matches("-?\\d+(\\.\\d+)?") == false) 
@@ -117,9 +118,8 @@ public class Server extends Observable {
 				        notifyMyObservers(self, "Storing " + message + "\n");
 				        notifyMyObservers(self, "Finished Profile!" + "\n");
 					}
+					// View profiles
 					else if(message.contains("viEw#")){
-						List<ClientObserver> self = new ArrayList<ClientObserver>();
-						self.add(this.writer);
 						notifyMyObservers(self, "Who would you like to view? Type @ symbol before their name. ");
 						message = reader.readLine();
 						boolean found = false;
@@ -145,13 +145,18 @@ public class Server extends Observable {
 						}
 						
 					}
+					// Leave chat
+					else if (message.contains("quIt#")) {
+						setChanged();
+						notifyObservers("---" + plainName + " is leaving the group!---");
+						clients.remove(this);
+						notifyMyObservers(self, "/quit");
+						return;
+					}
 					// Public chat
 					else {
-						System.out.println("server read "+message);
 						setChanged();
-						String[] name = new String[2];
-						name = this.clientName.split("@");
-						notifyObservers(name[1] + ": " + message);
+						notifyObservers(plainName + ": " + message);
 					}
 				}
 			} catch (IOException e) {

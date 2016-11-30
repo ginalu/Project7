@@ -4,14 +4,19 @@ import java.io.*;
 import java.net.*;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets; 
 import javafx.geometry.Pos; 
-import javafx.scene.Scene; 
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label; 
 import javafx.scene.control.ScrollPane; 
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField; 
-import javafx.scene.layout.BorderPane; 
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 //import javax.swing.*;
 
@@ -45,8 +50,38 @@ public class Client extends Application {
 		mainPane.setCenter(new ScrollPane(ta)); 
 		mainPane.setBottom(paneForTextField);
 		
+	    HBox hbox = new HBox();
+	    hbox.setPadding(new Insets(10, 7, 10, 7));
+	    hbox.setSpacing(10);
+	    hbox.setStyle("-fx-background-color: #336699;");
+
+	    Button set = new Button("Set Profile");
+	    set.setPrefSize(100, 15);
+
+	    Button view = new Button("View Profiles");
+	    view.setPrefSize(100, 15);
+	    hbox.getChildren().addAll(set, view);
+	    mainPane.setTop(hbox);
+	    
+	    
+	    set.setOnAction(new EventHandler<ActionEvent>() {
+	    	@Override
+            public void handle(ActionEvent event) {
+	    		writer.println("sEt#");
+				writer.flush();
+	    	}
+	    });
+	    
+	    view.setOnAction(new EventHandler<ActionEvent>() {
+	    	@Override
+            public void handle(ActionEvent event) {
+	    		writer.println("viEw#");
+				writer.flush();
+	    	}
+	    });
+	    
 		// Create a scene and place it in the stage 
-		Scene scene = new Scene(mainPane, 580, 235); 
+		Scene scene = new Scene(mainPane, 590, 280); 
 		primaryStage.setTitle("Instant Messenger"); // Set the stage title 
 		primaryStage.setScene(scene); // Place the scene in the stage 
 		primaryStage.show(); // Display the stage

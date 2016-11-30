@@ -47,11 +47,6 @@ public class Client {
 		reader = new BufferedReader(streamReader);
 		writer = new PrintWriter(sock.getOutputStream());
 		System.out.println("networking established");
-		incoming.append("Enter your client ID: ");
-		clientID = reader.readLine();
-		incoming.append("\nYour client ID is " + clientID + "\n");
-		writer.println("client ID: " + clientID);
-		writer.flush();
 		Thread readerThread = new Thread(new IncomingReader());
 		readerThread.start();
 	}

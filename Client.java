@@ -1,4 +1,4 @@
-/* CRITTERS Main.java
+/* Client.java
  * EE422C Project 7 submission by
  * Gina Lu
  * gbl286
